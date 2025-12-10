@@ -16,3 +16,6 @@ GitHub Pages
 ```
 npm run deploy
 ```
+
+なお、`npm run deploy` (または `yarn deploy`) は、`gh-pages` ブランチにビルド済みのファイルを自動的にプッシュします。
+手動で `gh-pages` ブランチを操作する必要はありません。
