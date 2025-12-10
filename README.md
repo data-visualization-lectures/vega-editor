@@ -1,5 +1,10 @@
 # Vega Editor [![Build Status](https://github.com/vega/editor/workflows/Test/badge.svg)](https://github.com/vega/editor/actions) [![Deploy to Pages](https://github.com/vega/editor/actions/workflows/publish.yml/badge.svg)](https://github.com/vega/editor/actions/workflows/publish.yml)
 
+nvm use
+yarn install
+yarn build
+yarn start
+
 ## デプロイ先
 
 GitHub Pages
