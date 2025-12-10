@@ -1,19 +1,11 @@
-_site
-.awcache
+{{ ... }}
 .DS_Store
-.eslintignore
-.eslintrc.js
 .idea
-.prettierignore
-beemo-error.log
 coverage
 dist
 node_modules
-npm-debug.log*
-package-lock.json
+npm-debug.log*package-lock.json
 prettier.config.js
 public
 stats.json
-tsconfig.json
-yarn-debug.log*
-yarn-error.log*
+.vite//

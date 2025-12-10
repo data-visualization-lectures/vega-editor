@@ -1,4 +1,4 @@
-import {Graph} from './graph';
+import {Graph} from './graph.js';
 
 export type Elements = {nodes: string[]; edges: string[]};
 
@@ -26,11 +26,15 @@ export function allRelated({nodes, edges}: Graph, selected: Elements): Set<strin
         // Mark the compound node relations as visited
         // and add their immediate parents to the queue
         const node = nodes[id];
+        // if the user inputs an invalid node, just ignore it
+        if (node === undefined) {
+          continue;
+        }
         const parents = node.parent !== undefined ? [node.parent] : [];
         const relatedCompound = [...parents, ...node.children];
         relatedCompound.forEach((i) => processed.add(i));
         for (const relatedID of [...relatedCompound, id].flatMap((i) =>
-          direction === 'up' ? nodes[i].incoming : nodes[i].outgoing
+          direction === 'up' ? nodes[i].incoming : nodes[i].outgoing,
         )) {
           if (processed.has(relatedID)) {
             continue;
@@ -39,7 +43,7 @@ export function allRelated({nodes, edges}: Graph, selected: Elements): Set<strin
         }
       }
       return [...processed];
-    })
+    }),
   );
 }
 

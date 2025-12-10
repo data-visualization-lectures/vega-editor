@@ -1,8 +1,7 @@
-import * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import type * as Monaco from 'monaco-editor';
 import {Renderers, Spec} from 'vega';
 import {Config, vega} from 'vega-embed';
 import {TopLevelSpec as VlSpec} from 'vega-lite';
-import {dataflowInitialState} from '../features/dataflow';
 
 import {
   COMPILEDPANE,
@@ -14,7 +13,7 @@ import {
   SIDEPANE,
   VEGA_LITE_START_SPEC,
   View,
-} from './consts';
+} from './consts.js';
 
 export type State = {
   isAuthenticated: boolean;
@@ -32,6 +31,8 @@ export type State = {
   editorString: string;
   error: {message: string}; // don't put Error here since we can't serialize it
   export: boolean;
+  extractConfig: boolean;
+  extractConfigSpec: boolean;
   gist: string;
   handle: string;
   hoverEnable: boolean | 'auto';
@@ -39,6 +40,7 @@ export type State = {
   lastPosition: number;
   logs: boolean;
   manualParse: boolean;
+  mergeConfigSpec: boolean;
   mode: Mode;
   name: string;
   navItem: string;
@@ -62,7 +64,10 @@ export type State = {
   debugs: string[];
   themeName: string;
   backgroundColor: string;
-} & typeof dataflowInitialState;
+  /** https://vega.github.io/vega/usage/interpreter/ */
+  expressionInterpreter: boolean;
+  runtime: any;
+};
 
 export const DEFAULT_STATE: State = {
   baseURL: null,
@@ -79,6 +84,8 @@ export const DEFAULT_STATE: State = {
   editorString: VEGA_LITE_START_SPEC,
   error: null,
   export: false,
+  extractConfig: false,
+  extractConfigSpec: false,
   gist: null,
   handle: '',
   hoverEnable: 'auto',
@@ -87,11 +94,12 @@ export const DEFAULT_STATE: State = {
   logLevel: vega.Warn,
   logs: false,
   manualParse: false,
+  mergeConfigSpec: false,
   mode: Mode.VegaLite,
   name: '',
   navItem: NAVBAR.Logs,
   parse: false,
-  private: GistPrivacy.ALL,
+  private: GistPrivacy.PUBLIC,
   profilePicUrl: '',
   renderer: 'svg',
   selectedExample: null,
@@ -110,5 +118,6 @@ export const DEFAULT_STATE: State = {
   debugs: [],
   infos: [],
   backgroundColor: '#ffffff',
-  ...dataflowInitialState,
+  expressionInterpreter: false,
+  runtime: null,
 };

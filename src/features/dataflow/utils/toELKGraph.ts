@@ -1,5 +1,5 @@
 import {ElkNode, LayoutOptions} from 'elkjs';
-import {Graph} from './graph';
+import {Graph} from './graph.js';
 
 // We do our own layouts with ELK instead of using the cytoscape ELK plugin, so we can cache the layouts more easily
 // https://github.com/cytoscape/cytoscape.js-elk/blob/master/src/layout.js
@@ -41,10 +41,11 @@ export function toELKGraph(graph: Graph, visible: {nodes: Set<string>; edges: Se
     .filter(([id]) => visible?.edges.has(id) ?? true)
     .map(([id, {source, target, size, label}]) => ({
       id,
-      source,
-      target,
+      sources: [source],
+      targets: [target],
       labels: label ? [{id: `edge-label:${id}`, text: label, ...size}] : [],
     }));
+
   const rootNode: ElkNode = {
     id: ROOT_ID,
     children: [],

@@ -1,16 +1,13 @@
+# Vega Editor [![Build Status](https://github.com/vega/editor/workflows/Test/badge.svg)](https://github.com/vega/editor/actions) [![Deploy to Pages](https://github.com/vega/editor/actions/workflows/publish.yml/badge.svg)](https://github.com/vega/editor/actions/workflows/publish.yml)
 
-## 依存関係のインストール
+## デプロイ先
 
-nvm use 18
-rm -rf node_modules
-yarn install
-yarn start
+GitHub Pages
 
-## ローカル開発サーバーの起動
+## ビルドとデプロイ方法
 
-yarn start
+ローカルで以下を実行する。mainブランチに変更はなく、ビルドしたファイルをgh-pagesブランチのみに送信する。
 
-
-## 本番用ビルド
-
-yarn build
+```
+npm run deploy
+```

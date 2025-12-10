@@ -13,15 +13,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v2.4.1
-        with:
-          node-version: 15
+      - uses: actions/setup-node@v4
 
       - name: Install Node dependencies
-        run: yarn --frozen-lockfile
+        run: npm ci
 
-      - run: yarn lint
-      - run: yarn tsc
-      - run: yarn build:only
+      - run: npm run lint
+      - run: npx tsc
+      - run: npm run build:only

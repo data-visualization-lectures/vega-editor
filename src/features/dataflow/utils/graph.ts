@@ -3,7 +3,7 @@
  */
 
 import {vega} from 'vega-embed';
-import {Size} from './measureText';
+import {Size} from './measureText.js';
 
 type ID = string;
 
@@ -34,7 +34,7 @@ export type Node = {
   parent?: ID;
   // A string that can be used to identify the node for coloring
   // should always be present
-  colorKey?: typeof colorKeys[number];
+  colorKey?: (typeof colorKeys)[number];
   // Mapping of keys to values, for display
   params: Record<string, string>;
 
@@ -71,7 +71,7 @@ export function filterEdges(graph: Graph, nodes: Set<ID>): Set<ID> {
   return new Set(
     Object.entries(graph.edges)
       .filter(([, {source, target}]) => nodes.has(source) && nodes.has(target))
-      .map(([id]) => id)
+      .map(([id]) => id),
   );
 }
 

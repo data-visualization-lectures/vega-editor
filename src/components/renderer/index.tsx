@@ -1,13 +1,13 @@
-import {connect} from 'react-redux';
-import {bindActionCreators, Dispatch} from 'redux';
-import * as EditorActions from '../../actions/editor';
-import {State} from '../../constants/default-state';
-import {recordPulse} from '../../features/dataflow/pulsesSlice';
-import {setRuntime} from '../../features/dataflow/runtimeSlice';
+import * as React from 'react';
+import {useAppContext} from '../../context/app-context';
+import {useDataflowActions} from '../../features/dataflow/DataflowContext';
 import Renderer from './renderer';
 
-export function mapStateToProps(state: State) {
-  return {
+const RendererContainer: React.FC = () => {
+  const {state, setState} = useAppContext();
+  const {setRuntime, recordPulse} = useDataflowActions();
+
+  const props = {
     baseURL: state.baseURL,
     config: state.config,
     editorString: state.editorString,
@@ -21,18 +21,20 @@ export function mapStateToProps(state: State) {
     vegaSpec: state.vegaSpec,
     view: state.view,
     backgroundColor: state.backgroundColor,
+    expressionInterpreter: state.expressionInterpreter,
   };
-}
 
-export function mapDispatchToProps(dispatch: Dispatch<EditorActions.Action>) {
-  return bindActionCreators(
-    {
-      setView: EditorActions.setView,
-      setRuntime: setRuntime,
-      recordPulse: recordPulse,
-    },
-    dispatch
+  return (
+    <Renderer
+      {...props}
+      setView={(newView) => setState((s) => ({...s, view: newView}))}
+      setRuntime={(runtime) => {
+        setState((s) => ({...s, runtime}));
+        setRuntime(runtime);
+      }}
+      recordPulse={recordPulse}
+    />
   );
-}
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)(Renderer);
+export default RendererContainer;

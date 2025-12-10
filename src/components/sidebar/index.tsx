@@ -1,30 +1,29 @@
-import {connect} from 'react-redux';
-import {bindActionCreators, Dispatch} from 'redux';
-import * as EditorActions from '../../actions/editor';
-import Renderer from './renderer';
-import {State} from '../../constants/default-state';
+import * as React from 'react';
+import {Renderers} from 'vega';
+import {useAppContext} from '../../context/app-context.js';
+import Renderer from './renderer.js';
 
-export function mapStateToProps(state: State) {
-  return {
+export default function Sidebar() {
+  const {state, setState} = useAppContext();
+  const props = {
     hoverEnable: state.hoverEnable,
     logLevel: state.logLevel,
     renderer: state.renderer,
     tooltipEnable: state.tooltipEnable,
     backgroundColor: state.backgroundColor,
+    expressionInterpreter: state.expressionInterpreter,
   };
-}
 
-export function mapDispatchToProps(dispatch: Dispatch<EditorActions.Action>) {
-  return bindActionCreators(
-    {
-      setHover: EditorActions.setHover,
-      setLogLevel: EditorActions.setLogLevel,
-      setRenderer: EditorActions.setRenderer,
-      setSettingsState: EditorActions.setSettingsState,
-      setTooltip: EditorActions.setTooltip,
-      setBackgroundColor: EditorActions.setBackgroundColor,
-    },
-    dispatch
+  return (
+    <Renderer
+      {...props}
+      setHover={(hover) => setState((s) => ({...s, hoverEnable: hover}))}
+      setLogLevel={(level) => setState((s) => ({...s, logLevel: level}))}
+      setRenderer={(renderer) => setState((s) => ({...s, renderer: renderer as Renderers}))}
+      setSettingsState={(stateParam) => setState((s) => ({...s, settings: stateParam}))}
+      setTooltip={(enabled) => setState((s) => ({...s, tooltipEnable: enabled}))}
+      setBackgroundColor={(color) => setState((s) => ({...s, backgroundColor: color}))}
+      setExpressionInterpreter={(enabled) => setState((s) => ({...s, expressionInterpreter: enabled}))}
+    />
   );
 }
-export default connect(mapStateToProps, mapDispatchToProps)(Renderer);

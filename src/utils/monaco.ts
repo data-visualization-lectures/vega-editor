@@ -1,10 +1,13 @@
 import stringify from 'json-stringify-pretty-compact';
-import * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import {parse as parseJSONC} from 'jsonc-parser';
+import type * as Monaco from 'monaco-editor';
 import {mergeDeep} from 'vega-lite';
-import addMarkdownProps from './markdownProps';
+import addMarkdownProps from './markdownProps.js';
 
-const vegaLiteSchema = require('vega-lite/build/vega-lite-schema.json');
-const vegaSchema = require('vega/build/vega-schema.json');
+import vegaLiteSchema from 'vega-lite/vega-lite-schema.json';
+import vegaSchema from 'vega/vega-schema.json';
+
+import {loader} from '@monaco-editor/react';
 
 addMarkdownProps(vegaSchema);
 addMarkdownProps(vegaLiteSchema);
@@ -42,15 +45,18 @@ const schemas = [
   },
 ];
 
-export default function setupMonaco() {
-  Monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
-    allowComments: false,
+export default async function setupMonaco() {
+  const monaco = await loader.init();
+
+  monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+    comments: 'warning',
+    trailingCommas: 'warning',
     enableSchemaRequest: true,
     schemas,
     validate: true,
   });
 
-  Monaco.languages.json.jsonDefaults.setModeConfiguration({
+  monaco.languages.json.jsonDefaults.setModeConfiguration({
     documentFormattingEdits: false,
     documentRangeFormattingEdits: false,
     completionItems: true,
@@ -62,16 +68,12 @@ export default function setupMonaco() {
     diagnostics: true,
   });
 
-  Monaco.languages.registerDocumentFormattingEditProvider('json', {
-    provideDocumentFormattingEdits(
-      model: Monaco.editor.ITextModel,
-      options: Monaco.languages.FormattingOptions,
-      token: Monaco.CancellationToken
-    ): Monaco.languages.TextEdit[] {
+  monaco.languages.registerDocumentFormattingEditProvider('json', {
+    provideDocumentFormattingEdits(model: Monaco.editor.ITextModel): Monaco.languages.TextEdit[] {
       return [
         {
           range: model.getFullModelRange(),
-          text: stringify(JSON.parse(model.getValue())),
+          text: stringify(parseJSONC(model.getValue())),
         },
       ];
     },

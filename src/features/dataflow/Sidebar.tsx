@@ -1,22 +1,20 @@
 import * as React from 'react';
-import {useDispatch} from 'react-redux';
-import {useAppSelector} from '../../hooks';
-import {resetPulses, sortedPulsesSelector, pulsesEmptySelector} from './pulsesSlice';
+import {useDataflowActions, useDataflowComputed} from './DataflowContext.js';
 import './Sidebar.css';
-import {selectedPulseSelector, selectedTypesSelector, setSelectedPulse, setSelectedType} from './selectionSlice';
-import {GraphType, types} from './utils/graph';
+import {GraphType, types} from './utils/graph.js';
 
 export function Sidebar() {
   return (
     <div className="sidebar">
       <Types />
+      <Id />
       <Pulses />
     </div>
   );
 }
 
 function Types() {
-  const selectedTypes = useAppSelector(selectedTypesSelector);
+  const {selectedTypes} = useDataflowComputed();
 
   return (
     <fieldset className="type-filter">
@@ -29,16 +27,36 @@ function Types() {
 }
 
 function Type({type, label, selected}: {type: GraphType; label: string; selected: boolean}) {
-  const dispatch = useDispatch();
+  const {setSelectedType} = useDataflowActions();
   return (
     <div>
-      <input
-        type="checkbox"
-        checked={selected}
-        onChange={(event) => dispatch(setSelectedType({type, enabled: event.target.checked}))}
-      />
+      <input type="checkbox" checked={selected} onChange={(event) => setSelectedType(type, event.target.checked)} />
       <label>{label}</label>
     </div>
+  );
+}
+
+function Id() {
+  const [searchTerm, setSearchTerm] = React.useState<string | null>(null);
+  const {setSelectedElements} = useDataflowActions();
+  return (
+    <fieldset className="id-filter">
+      <legend>Filter by ID</legend>
+      <div>
+        <input type="search" title="Pulse Id Search" onChange={(e) => setSearchTerm(e.target.value)} />
+        <button
+          onClick={() => {
+            if (!searchTerm) {
+              return;
+            }
+            setSelectedElements({nodes: [searchTerm], edges: []});
+            setSearchTerm(null);
+          }}
+        >
+          Search
+        </button>
+      </div>
+    </fieldset>
   );
 }
 
@@ -65,15 +83,14 @@ function Pulses() {
 }
 
 function PulsesButtons() {
-  const dispatch = useDispatch();
-  const selectedPulse = useAppSelector(selectedPulseSelector);
-  const pulsesEmpty = useAppSelector(pulsesEmptySelector);
+  const {selectedPulse, pulsesEmpty} = useDataflowComputed();
+  const {setSelectedPulse, resetPulses} = useDataflowActions();
   return (
     <div className="buttons">
-      <button onClick={() => dispatch(setSelectedPulse(null))} disabled={selectedPulse === null}>
+      <button onClick={() => setSelectedPulse(null)} disabled={selectedPulse === null}>
         Unselect pulse
       </button>
-      <button onClick={() => dispatch(resetPulses())} disabled={pulsesEmpty}>
+      <button onClick={() => resetPulses()} disabled={pulsesEmpty}>
         Clear recorded pulses
       </button>
     </div>
@@ -81,11 +98,10 @@ function PulsesButtons() {
 }
 
 function PulsesRows() {
-  const pulses = useAppSelector(sortedPulsesSelector);
-  const selectedPulse = useAppSelector(selectedPulseSelector);
+  const {sortedPulses, selectedPulse} = useDataflowComputed();
   return (
     <tbody>
-      {pulses.map(({clock, nValues}) => (
+      {sortedPulses.map(({clock, nValues}) => (
         <MemoPulse key={clock} clock={clock} nValues={nValues} isSelected={clock === selectedPulse} />
       ))}
     </tbody>
@@ -95,10 +111,10 @@ function PulsesRows() {
 const MemoPulse = React.memo(Pulse);
 
 function Pulse({clock, isSelected, nValues}: {isSelected: boolean; clock: number; nValues: number}) {
-  const dispatch = useDispatch();
+  const {setSelectedPulse} = useDataflowActions();
 
   return (
-    <tr className={isSelected ? 'active-pulse' : ''} onClick={() => dispatch(setSelectedPulse(clock))}>
+    <tr className={isSelected ? 'active-pulse' : ''} onClick={() => setSelectedPulse(clock)}>
       <td>{clock}</td>
       <td>{nValues}</td>
     </tr>

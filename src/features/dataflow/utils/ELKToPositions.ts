@@ -1,5 +1,5 @@
 import {ElkNode} from 'elkjs';
-import {Size} from './measureText';
+import {Size} from './measureText.js';
 
 export type Positions = Record<string, {x: number; y: number}>;
 export function ELKToPositions(node: ElkNode): Positions {
@@ -15,7 +15,7 @@ export function ELKToPositions(node: ElkNode): Positions {
  */
 function traverseELKNodes(
   rootNode: ElkNode,
-  callback: (id: string, position: {x: number; y: number}, size: Size) => void
+  callback: (id: string, position: {x: number; y: number}, size: Size) => void,
 ) {
   const toProcess = (rootNode?.children || []).map((n) => [n, {x: 0 as number, y: 0 as number}] as const);
   while (toProcess.length) {

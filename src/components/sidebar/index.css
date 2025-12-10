@@ -1,8 +1,9 @@
 .settings {
-  border-left: solid 1px var(--box-shadow-color);
-  width: 290px;
+  width: 100%;
   font-size: 14px;
   padding: 25px;
+  height: 100%;
+  overflow-y: auto;
 }
 
 @media only screen and (max-width: 1000px) {
@@ -10,10 +11,12 @@
     position: absolute;
     height: 100%;
     right: 0px;
-    top: -2px;
+    top: 0px;
+    width: 290px;
     background: var(--white-color);
     box-shadow: -2px 4px 10px 3px var(--box-shadow-color);
     border-radius: 4px 0 0 4px;
+    z-index: 1000;
   }
 }
 
@@ -33,24 +36,6 @@
 .hover-enable-dropdown-wrapper {
   width: 150px;
   margin-left: 10px;
-}
-
-.renderer-dropdown__option,
-.log-level-dropdown__option,
-.hover-enable-dropdown__option {
-  background-color: var(--white-color) !important;
-  color: var(--black-color) !important;
-}
-.renderer-dropdown__option:hover,
-.log-level-dropdown__option:hover,
-.hover-enable-dropdown__option:hover {
-  background-color: var(--transparent-color) !important;
-}
-
-.renderer-dropdown__single-value,
-.log-level-dropdown__single-value,
-.hover-enable-dropdown_-single-value {
-  line-height: normal !important;
 }
 
 .tooltips,

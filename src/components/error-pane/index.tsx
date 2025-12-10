@@ -1,16 +1,10 @@
-import {connect} from 'react-redux';
+import * as React from 'react';
+import {useAppContext} from '../../context/app-context.js';
+import Renderer from './renderer.js';
 
-import {State} from '../../constants/default-state';
-import Renderer from './renderer';
+export default function ErrorPane() {
+  const {state} = useAppContext();
+  const {error, errors, warns, debugs, infos} = state;
 
-export function mapStateToProps(state: State) {
-  return {
-    error: state.error,
-    errors: state.errors,
-    warns: state.warns,
-    debugs: state.debugs,
-    infos: state.infos,
-  };
+  return <Renderer error={error} errors={errors} warns={warns} debugs={debugs} infos={infos} />;
 }
-
-export default connect(mapStateToProps)(Renderer);

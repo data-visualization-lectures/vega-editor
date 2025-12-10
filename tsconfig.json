@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "esModuleInterop": true,
+    "strict": false,
+    "allowSyntheticDefaultImports": true,
+    "importHelpers": true,
+    "jsx": "react-jsx",
+    "resolveJsonModule": true,
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable"
+    ],
+    "skipLibCheck": true,
+    "types": [
+      "react",
+      "react-dom",
+      "node"
+    ]
+  },
+  "include": [
+    "src/**/*.ts*",
+    "test/**/*.ts*",
+    "vite.config.ts"
+  ]
+}
