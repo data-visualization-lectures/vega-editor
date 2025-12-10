@@ -112,7 +112,10 @@ module.exports = (env, argv) => {
         languages: ['json'],
       }),
       new CopyPlugin({
-        patterns: [{from: require.resolve('elkjs/lib/elk-worker.js'), to: 'elk-worker.js'}],
+        patterns: [
+          {from: require.resolve('elkjs/lib/elk-worker.js'), to: 'elk-worker.js'},
+          {from: 'public/vendor', to: 'vendor'},
+        ],
       }),
     ],
 

@@ -85,9 +85,9 @@
     ]
   },
   "scripts": {
-    "start": "webpack serve --mode development",
+    "start": "NODE_OPTIONS=--openssl-legacy-provider webpack serve --mode development",
     "build": "yarn clean && yarn vendor && yarn build:only",
-    "build:only": "webpack --mode production",
+    "build:only": "NODE_OPTIONS=--openssl-legacy-provider webpack --mode production",
     "clean": "rimraf dist public/spec public/data",
     "postbuild": "rsync --ignore-existing -r public/* dist",
     "generate-example-images": "scripts/generate-example-images.sh",
