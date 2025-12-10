@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-npm list $1 | tail -n 2 | head -n 1 | sed 's/.*@//' | awk '{print $1}'
+node -p "try { require('./node_modules/$1/package.json').version } catch(e) { '' }"
