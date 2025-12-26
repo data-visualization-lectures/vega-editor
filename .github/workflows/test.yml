@@ -1,0 +1,25 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  publish:
+    name: Lint and Build
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - run: npm run lint
+      - run: npx tsc
+      - run: npm run build:only
