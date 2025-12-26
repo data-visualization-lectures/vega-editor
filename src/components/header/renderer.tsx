@@ -1,7 +1,19 @@
 import stringify from 'json-stringify-pretty-compact';
 import * as React from 'react';
 import {useEffect, useRef, useState, useCallback} from 'react';
-import {ExternalLink, GitHub, Grid, HelpCircle, Play, Settings, Share2, Terminal, X} from 'react-feather';
+import {
+  ExternalLink,
+  GitHub,
+  Grid,
+  HelpCircle,
+  Play,
+  Settings,
+  Share2,
+  Terminal,
+  X,
+  UploadCloud,
+  DownloadCloud,
+} from 'react-feather';
 import {useNavigate} from 'react-router';
 import Select from 'react-select';
 import {useAppContext} from '../../context/app-context.js';
@@ -12,6 +24,8 @@ import {getAuthFromLocalStorage, saveAuthToLocalStorage, clearAuthFromLocalStora
 import ExportModal from './export-modal/renderer.js';
 import GistModal from './gist-modal/renderer.js';
 import HelpModal from './help-modal/index.js';
+import SaveModal from './save-modal/renderer.js';
+import LoadModal from './load-modal/renderer.js';
 import './index.css';
 import ShareModal from './share-modal/index.js';
 import {PortalWithState} from 'react-portal';
@@ -259,6 +273,46 @@ const Header: React.FC<Props> = ({showExample}) => {
     return () => {
       window.removeEventListener('message', handleAuthMessage);
     };
+  }, [setState]);
+
+  // Sync Supabase Auth State
+  useEffect(() => {
+    // interval to check until window.supabase is available
+    const checkSupabase = setInterval(() => {
+      const supabase = (window as any).supabase;
+      if (supabase) {
+        clearInterval(checkSupabase);
+
+        // Initial Session Check
+        supabase.auth.getSession().then(({data: {session}}) => {
+          if (session) {
+            console.log('Supabase session found:', session);
+            setState((s) => ({
+              ...s,
+              isAuthenticated: true,
+              name: session.user.email || 'User',
+              handle: session.user.id,
+              profilePicUrl: s.profilePicUrl || '', // Keep existing or empty
+            }));
+          }
+        });
+
+        // Listen for changes
+        const {
+          data: {subscription},
+        } = supabase.auth.onAuthStateChange((_event, session) => {
+          const isAuth = !!session;
+          setState((s) => ({
+            ...s,
+            isAuthenticated: isAuth,
+            name: session?.user?.email || (isAuth ? 'User' : ''),
+            handle: session?.user?.id || '',
+          }));
+        });
+      }
+    }, 100);
+
+    return () => clearInterval(checkSupabase);
   }, [setState]);
 
   useEffect(() => {
@@ -698,6 +752,64 @@ const Header: React.FC<Props> = ({showExample}) => {
           {autoRunToggle}
         </span>
         {optionsButton}
+
+        {isAuthenticated && (
+          <>
+            <PortalWithState closeOnEsc>
+              {({openPortal, closePortal, isOpen, portal}) => (
+                <>
+                  <span onClick={openPortal}>
+                    <div className="header-button">
+                      <UploadCloud className="header-icon" />
+                      {'Save'}
+                    </div>
+                  </span>
+                  {portal(
+                    <div className="modal-background" onClick={closePortal}>
+                      <div className="modal" onClick={(e) => e.stopPropagation()}>
+                        <div>
+                          <button className="close-button" onClick={closePortal}>
+                            <X />
+                          </button>
+                        </div>
+                        <div className="modal-body">
+                          <SaveModal closePortal={closePortal} />
+                        </div>
+                      </div>
+                    </div>,
+                  )}
+                </>
+              )}
+            </PortalWithState>
+
+            <PortalWithState closeOnEsc>
+              {({openPortal, closePortal, isOpen, portal}) => (
+                <>
+                  <span onClick={openPortal}>
+                    <div className="header-button">
+                      <DownloadCloud className="header-icon" />
+                      {'Load'}
+                    </div>
+                  </span>
+                  {portal(
+                    <div className="modal-background" onClick={closePortal}>
+                      <div className="modal" onClick={(e) => e.stopPropagation()} style={{width: '80%', maxWidth: 800}}>
+                        <div>
+                          <button className="close-button" onClick={closePortal}>
+                            <X />
+                          </button>
+                        </div>
+                        <div className="modal-body">
+                          <LoadModal closePortal={closePortal} />
+                        </div>
+                      </div>
+                    </div>,
+                  )}
+                </>
+              )}
+            </PortalWithState>
+          </>
+        )}
 
         <PortalWithState closeOnEsc>
           {({openPortal, closePortal, isOpen, portal}) => (

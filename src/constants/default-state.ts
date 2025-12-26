@@ -17,6 +17,8 @@ import {
 
 export type State = {
   isAuthenticated: boolean;
+  projectId: string | null;
+  projectTitle: string;
   baseURL: string;
   compiledVegaSpec: boolean;
   compiledVegaPaneSize: number;
@@ -70,6 +72,8 @@ export type State = {
 };
 
 export const DEFAULT_STATE: State = {
+  projectId: null,
+  projectTitle: '',
   baseURL: null,
   compiledEditorRef: null,
   compiledVegaPaneSize: LAYOUT.MinPaneSize,

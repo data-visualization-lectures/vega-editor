@@ -1,12 +1,11 @@
 // ---- 設定 ----
-const SUPABASE_URL = 'https://vebhoeiltxspsurqoxvl.supabase.co';
-const SUPABASE_ANON_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlYmhvZWlsdHhzcHN1cnFveHZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzAyMjI2MTIsImV4cCI6MjA0NTc5ODYxMn0.sV-Xf6wP_m46D_q-XN0oZfK9NogDqD9xV5sS-n6J8c4'; // 公開OKなAnon Key
-const API_BASE_URL = 'https://api.dataviz.jp'; // ユーザープロファイルAPIなど
-const AUTH_APP_URL = 'https://auth.dataviz.jp'; // ログイン画面
+const SUPABASE_URL = "https://vebhoeiltxspsurqoxvl.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlYmhvZWlsdHhzcHN1cnFveHZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzAyMjI2MTIsImV4cCI6MjA0NTc5ODYxMn0.sV-Xf6wP_m46D_q-XN0oZfK9NogDqD9xV5sS-n6J8c4"; // 公開OKなAnon Key
+const API_BASE_URL = "https://api.dataviz.jp"; // ユーザープロファイルAPIなど
+const AUTH_APP_URL = "https://auth.dataviz.jp"; // ログイン画面
 
 // ガイドに従った固定クッキー名
-const AUTH_COOKIE_NAME = 'sb-dataviz-auth-token';
+const AUTH_COOKIE_NAME = "sb-dataviz-auth-token";
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1年
 
 /**
@@ -14,67 +13,122 @@ const COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1年
  */
 const COOKIE_DOMAIN = (() => {
   const hostname = window.location.hostname;
-  if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.match(/^(\d{1,3}\.){3}\d{1,3}$/)) {
+  if (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname.match(/^(\d{1,3}\.){3}\d{1,3}$/)
+  ) {
     return null;
   }
-  return '.dataviz.jp';
+  return ".dataviz.jp";
 })();
 
 const cookieStorage = {
   getItem: (key) => {
+    // console.log("[AuthDebug] Lookup key:", key);
     const cookies = document.cookie
-      .split(';')
+      .split(";")
       .map((c) => c.trim())
-      .filter(Boolean);
+      .reduce((acc, current) => {
+        const [k, ...v] = current.split("=");
+        acc[k] = v.join("=");
+        return acc;
+      }, {});
 
-    for (const c of cookies) {
-      const [k, ...rest] = c.split('=');
-      if (k === key) {
-        const rawVal = decodeURIComponent(rest.join('='));
-        try {
-          return JSON.parse(rawVal);
-        } catch (e) {}
-        try {
-          let toDecode = rawVal.startsWith('base64-') ? rawVal.slice(7) : rawVal;
-          const base64Standard = toDecode.replace(/-/g, '+').replace(/_/g, '/');
-          return JSON.parse(atob(base64Standard));
-        } catch (e) {
-          return null;
-        }
+    let rawVal = cookies[key];
+
+    // If exact key not found, try to find chunked cookies (key.0, key.1, ...)
+    if (!rawVal) {
+      const chunks = [];
+      let i = 0;
+      while (cookies[`${key}.${i}`]) {
+        chunks.push(cookies[`${key}.${i}`]);
+        i++;
       }
+      if (chunks.length > 0) {
+        // console.log(`[AuthDebug] Found ${chunks.length} chunks for ${key}`);
+        rawVal = chunks.join("");
+      }
+    }
+
+    if (!rawVal) {
+      // console.log("[AuthDebug] No value found");
+      return null;
+    }
+
+    // Decoding attempts
+    // 1. Try raw JSON
+    try {
+      const res = JSON.parse(rawVal);
+      // console.log("[AuthDebug] Raw JSON parsed success");
+      return res;
+    } catch (e) { }
+
+    // 2. Try URL-decoded JSON
+    const decodedVal = decodeURIComponent(rawVal);
+    try {
+      const res = JSON.parse(decodedVal);
+      // console.log("[AuthDebug] URL-decoded JSON parsed success");
+      return res;
+    } catch (e) { }
+
+    // 3. Try Base64 decoding (Supabase standard)
+    try {
+      let toDecode = decodedVal.trim();
+      // Remove 'base64-' prefix if present
+      if (toDecode.startsWith('base64-')) {
+        toDecode = toDecode.slice(7);
+      }
+      // Fix URL-safe base64 to standard base64
+      const base64Standard = toDecode.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonStr = atob(base64Standard);
+      const res = JSON.parse(jsonStr);
+      // console.log("[AuthDebug] Base64 parsed success");
+      return res;
+    } catch (e) {
+      console.error("[AuthDebug] All parse attempts failed for cookie", e);
     }
     return null;
   },
   setItem: (key, value) => {
     let encoded;
-    try {
-      encoded = btoa(value);
-    } catch (e) {
-      return;
-    }
-    let cookieStr = `${key}=${encoded}; Max-Age=${COOKIE_MAX_AGE}; Path=/; SameSite=None; Secure`;
+    try { encoded = btoa(value); } catch (e) { return; }
+    let cookieStr = `${key}=${encoded}; Max-Age=${COOKIE_MAX_AGE}; Path=/; SameSite=Lax; Secure`;
     if (COOKIE_DOMAIN) cookieStr += `; Domain=${COOKIE_DOMAIN}`;
     document.cookie = cookieStr;
   },
   removeItem: (key) => {
-    let cookieStr = `${key}=; Max-Age=0; Path=/; SameSite=None; Secure`;
-    if (COOKIE_DOMAIN) cookieStr += `; Domain=${COOKIE_DOMAIN}`;
-    document.cookie = cookieStr;
+    const deleteCookie = (name) => {
+      let cookieStr = `${name}=; Max-Age=0; Path=/; SameSite=Lax; Secure`;
+      if (COOKIE_DOMAIN) cookieStr += `; Domain=${COOKIE_DOMAIN}`;
+      document.cookie = cookieStr;
+    };
+
+    // Delete main cookie
+    deleteCookie(key);
+
+    // Delete chunked cookies (key.0, key.1, ...)
+    // Iterate over all cookies to find chunks
+    const cookies = document.cookie.split(';').map(c => c.trim().split('=')[0]);
+    cookies.forEach(cookieKey => {
+      if (cookieKey.startsWith(`${key}.`)) {
+        deleteCookie(cookieKey);
+      }
+    });
   },
 };
 
 // ---- Supabase クライアント作成 ----
-const supabase = window.supabase
-  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: {
-        storage: cookieStorage,
-        storageKey: AUTH_COOKIE_NAME,
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true,
-      },
-    })
-  : null;
+const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    storage: cookieStorage,
+    storageKey: AUTH_COOKIE_NAME,
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+  },
+}) : null;
+
 
 // =========================================================================
 // UI Component: 共通ヘッダー (Shadow DOM使用)
@@ -83,10 +137,10 @@ class DatavizGlobalHeader {
   constructor() {
     this.host = document.createElement('div');
     this.host.id = 'dataviz-global-header-host';
-    this.shadow = this.host.attachShadow({mode: 'open'});
+    this.shadow = this.host.attachShadow({ mode: 'open' });
     this.state = {
       isLoading: true,
-      user: null,
+      user: null
     };
   }
 
@@ -99,7 +153,7 @@ class DatavizGlobalHeader {
   }
 
   update(newState) {
-    this.state = {...this.state, ...newState};
+    this.state = { ...this.state, ...newState };
     this.render();
   }
 
@@ -194,11 +248,11 @@ class DatavizGlobalHeader {
   }
 
   render() {
-    const {isLoading, user} = this.state;
+    const { isLoading, user } = this.state;
 
     // アカウントページのURL
     const accountUrl = `${AUTH_APP_URL}/account`;
-    const loginUrl = `${AUTH_APP_URL}/auth/sign-up?redirect_to=${encodeURIComponent(window.location.href)}`;
+    const loginUrl = `${AUTH_APP_URL}/auth/login?redirect_to=${encodeURIComponent(window.location.href)}`;
 
     let rightContent = '';
 
@@ -244,13 +298,14 @@ class DatavizGlobalHeader {
   }
 }
 
+
 // =========================================================================
 // Logic: 認証・認可ロジック
 // =========================================================================
 
 function isAuthDebugMode() {
   const params = new URLSearchParams(window.location.search);
-  return params.has('auth_debug');
+  return params.has("auth_debug");
 }
 
 function performRedirect(url, reason) {
@@ -268,16 +323,16 @@ function performRedirect(url, reason) {
 async function verifyUserAccess(session) {
   if (!session) {
     const redirectTo = encodeURIComponent(window.location.href);
-    const signUpUrl = `${AUTH_APP_URL}/auth/sign-up?redirect_to=${redirectTo}`;
-    performRedirect(signUpUrl, 'Unauthenticated');
+    const loginUrl = `${AUTH_APP_URL}/auth/login?redirect_to=${redirectTo}`;
+    performRedirect(loginUrl, 'Unauthenticated');
     return null;
   }
 
   try {
     const res = await fetch(`${API_BASE_URL}/api/me`, {
-      method: 'GET',
-      headers: {Authorization: `Bearer ${session.access_token}`},
-      credentials: 'include', // Cookie送信
+      method: "GET",
+      headers: { Authorization: `Bearer ${session.access_token}` },
+      credentials: "include", // Cookie送信
     });
     if (!res.ok) throw new Error(`Status ${res.status}`);
 
@@ -285,26 +340,28 @@ async function verifyUserAccess(session) {
 
     // サブスクチェック
     const sub = profile.subscription || {};
-    const status = sub.status || 'none';
+    const status = sub.status || "none";
 
     // 「キャンセル済みだが期間内」は cancel_at_period_end で判断
     const isCanceledButValid = sub.cancel_at_period_end;
 
-    const isActive = status === 'active' || status === 'trialing' || isCanceledButValid;
+    const isActive = status === "active" || status === "trialing" || isCanceledButValid;
 
     if (!isActive) {
-      performRedirect(AUTH_APP_URL, `Inactive Subscription (${status})`);
+      performRedirect(`${AUTH_APP_URL}/account`, `Inactive Subscription (${status})`);
       return null;
     }
 
     // ユーザー情報にemailが含まれていない場合があるので、Sessionからマージ
-    return {...profile, email: session.user.email};
+    return { ...profile, email: session.user.email };
+
   } catch (err) {
-    console.error('[dataviz-auth-client] Profile check failed', err);
+    console.error("[dataviz-auth-client] Profile check failed", err);
     performRedirect(AUTH_APP_URL, 'Profile Error');
     return null;
   }
 }
+
 
 // =========================================================================
 // Controller: メイン処理 (変更なしのエントリーポイント名)
@@ -312,7 +369,7 @@ async function verifyUserAccess(session) {
 
 async function initDatavizToolAuth() {
   if (!supabase) {
-    console.error('[dataviz-auth-client] Supabase client missing.');
+    console.error("[dataviz-auth-client] Supabase client missing.");
     return;
   }
 
@@ -334,13 +391,13 @@ async function initDatavizToolAuth() {
     // URLパラメータ掃除
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const searchParams = new URLSearchParams(window.location.search);
-    if (searchParams.has('code') || hashParams.has('access_token')) {
+    if (searchParams.has("code") || hashParams.has("access_token")) {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
 
     if (!session) {
       // 未ログイン
-      headerUI.update({isLoading: false, user: null});
+      headerUI.update({ isLoading: false, user: null });
       await verifyUserAccess(null); // リダイレクト実行
       return;
     }
@@ -349,7 +406,7 @@ async function initDatavizToolAuth() {
     const profile = await verifyUserAccess(session);
     if (profile) {
       // 成功 -> UI更新
-      headerUI.update({isLoading: false, user: profile});
+      headerUI.update({ isLoading: false, user: profile });
     }
     // 失敗時は verifyUserAccess 内でリダイレクトされる
   };
@@ -360,15 +417,17 @@ async function initDatavizToolAuth() {
       if (isCheckDone) return;
       isCheckDone = true;
       await handleSession(session);
-    } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+    }
+    else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
       await handleSession(session);
-    } else if (event === 'SIGNED_OUT') {
+    }
+    else if (event === 'SIGNED_OUT') {
       await handleSession(null);
     }
   });
 
   // フォールバックチェック
-  const {data} = await supabase.auth.getSession();
+  const { data } = await supabase.auth.getSession();
   if (!isCheckDone) {
     isCheckDone = true;
     await handleSession(data.session);
@@ -377,3 +436,4 @@ async function initDatavizToolAuth() {
 
 // 自動実行
 initDatavizToolAuth();
+window.supabase = supabase;
