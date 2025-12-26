@@ -20,6 +20,6 @@ npm run deploy
 なお、`npm run deploy` (または `yarn deploy`) は、`gh-pages` ブランチにビルド済みのファイルを自動的にプッシュします。
 手動で `gh-pages` ブランチを操作する必要はありません。
 
-# ビルド後に、-b オプションでプッシュ先のブランチ名を指定します
+## ビルド後に、-b オプションでプッシュ先のブランチ名を指定する場合
 npm run build
 npx gh-pages -d dist -b gh-pages-test
