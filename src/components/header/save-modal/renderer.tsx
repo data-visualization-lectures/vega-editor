@@ -12,7 +12,7 @@ const SaveModal: React.FC<Props> = ({closePortal}) => {
   const {state, setState} = useAppContext();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [projectName, setProjectName] = useState(state.projectTitle || '');
+  const [projectName, setProjectName] = useState(state.projectTitle || new Date().toISOString().split('T')[0]);
 
   // update existing
   const handleUpdate = useCallback(async () => {
