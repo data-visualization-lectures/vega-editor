@@ -1,4 +1,4 @@
-{{ ... }}
+
 .DS_Store
 .idea
 coverage
@@ -9,3 +9,4 @@ prettier.config.js
 public
 stats.json
 .vite//
+.yarn/install-state.gz
