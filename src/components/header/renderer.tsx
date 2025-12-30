@@ -17,10 +17,10 @@ import {
 import {useNavigate} from 'react-router';
 import Select from 'react-select';
 import {useAppContext} from '../../context/app-context.js';
-import {BACKEND_URL, KEYCODES, Mode} from '../../constants/index.js';
+import {KEYCODES, Mode} from '../../constants/index.js';
 import {NAMES} from '../../constants/consts.js';
 import {VEGA_LITE_SPECS, VEGA_SPECS} from '../../constants/specs.js';
-import {getAuthFromLocalStorage, saveAuthToLocalStorage, clearAuthFromLocalStorage} from '../../utils/browser.js';
+
 import ExportModal from './export-modal/renderer.js';
 import GistModal from './gist-modal/renderer.js';
 import HelpModal from './help-modal/index.js';
@@ -72,208 +72,6 @@ const Header: React.FC<Props> = ({showExample}) => {
       window.removeEventListener('click', handleClick);
     };
   }, []);
-
-  useEffect(() => {
-    const checkAuthFromHash = async () => {
-      if (window.location.hash.includes('auth_token=') || window.location.hash.includes('logout=')) {
-        let hashContent = window.location.hash.substring(1);
-        if (hashContent.startsWith('/')) {
-          hashContent = hashContent.substring(1);
-        }
-
-        const hashParams = new URLSearchParams(hashContent);
-        const tokenFromHash = hashParams.get('auth_token');
-        const logoutFlag = hashParams.get('logout');
-
-        window.history.replaceState(null, '', window.location.pathname + window.location.search + '#/');
-
-        if (logoutFlag === 'true') {
-          clearAuthFromLocalStorage();
-          localStorage.removeItem('vega_editor_auth_token');
-          setState((s) => ({...s, isAuthenticated: false, name: '', profilePicUrl: ''}));
-          return;
-        }
-
-        if (tokenFromHash) {
-          localStorage.setItem('vega_editor_auth_token', tokenFromHash);
-
-          const tokenData = await verifyTokenLocally(tokenFromHash);
-          if (tokenData && tokenData.isAuthenticated) {
-            saveAuthToLocalStorage({
-              isAuthenticated: tokenData.isAuthenticated,
-              handle: tokenData.handle,
-              name: tokenData.name,
-              profilePicUrl: tokenData.profilePicUrl,
-              authToken: tokenData.authToken,
-            });
-            setState((s) => ({
-              ...s,
-              isAuthenticated: tokenData.isAuthenticated,
-              handle: tokenData.handle,
-              name: tokenData.name,
-              profilePicUrl: tokenData.profilePicUrl,
-            }));
-            return;
-          }
-        }
-      }
-
-      const localAuthData = getAuthFromLocalStorage();
-      const auth_token = localStorage.getItem('vega_editor_auth_token');
-
-      if (localAuthData && localAuthData.isAuthenticated && localAuthData.authToken) {
-        try {
-          const isValid = await verifyTokenLocally(localAuthData.authToken);
-          if (isValid) {
-            setState((s) => ({
-              ...s,
-              isAuthenticated: localAuthData.isAuthenticated,
-              handle: localAuthData.handle,
-              name: localAuthData.name,
-              profilePicUrl: localAuthData.profilePicUrl,
-            }));
-            return;
-          }
-        } catch (error) {
-          console.error('Error verifying stored token:', error);
-        }
-      }
-
-      if (auth_token) {
-        try {
-          const headers: HeadersInit = {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            Pragma: 'no-cache',
-            Expires: '0',
-            'X-Auth-Token': auth_token,
-          };
-
-          const response = await fetch(`${BACKEND_URL}auth/github/check`, {
-            cache: 'no-store',
-            headers,
-          });
-
-          const data = await response.json();
-          const userData = {
-            isAuthenticated: data.isAuthenticated,
-            handle: data.handle,
-            userName: data.name,
-            userProfilePic: data.profilePicUrl,
-            authToken: data.authToken,
-          };
-
-          if (userData.isAuthenticated && userData.authToken) {
-            saveAuthToLocalStorage({
-              isAuthenticated: userData.isAuthenticated,
-              handle: userData.handle,
-              name: userData.userName,
-              profilePicUrl: userData.userProfilePic,
-              authToken: userData.authToken,
-            });
-            setState((s) => ({
-              ...s,
-              isAuthenticated: userData.isAuthenticated,
-              handle: userData.handle,
-              name: userData.userName,
-              profilePicUrl: userData.userProfilePic,
-            }));
-            return;
-          }
-        } catch (error) {
-          console.error('Token verification failed:', error);
-        }
-      }
-
-      clearAuthFromLocalStorage();
-      localStorage.removeItem('vega_editor_auth_token');
-      setState((s) => ({...s, isAuthenticated: false, name: '', profilePicUrl: ''}));
-    };
-
-    checkAuthFromHash();
-
-    const handleAuthMessage = async (e) => {
-      if (e.data && e.data.type === 'auth') {
-        if (e.data.token) {
-          localStorage.setItem('vega_editor_auth_token', e.data.token);
-
-          try {
-            const tokenData = await verifyTokenLocally(e.data.token);
-            if (tokenData && tokenData.isAuthenticated) {
-              saveAuthToLocalStorage({
-                isAuthenticated: tokenData.isAuthenticated,
-                handle: tokenData.handle,
-                name: tokenData.name,
-                profilePicUrl: tokenData.profilePicUrl,
-                authToken: tokenData.authToken,
-              });
-              setState((s) => ({
-                ...s,
-                isAuthenticated: tokenData.isAuthenticated,
-                handle: tokenData.handle,
-                name: tokenData.name,
-                profilePicUrl: tokenData.profilePicUrl,
-              }));
-              return;
-            }
-          } catch (error) {
-            console.error('Error verifying token locally:', error);
-          }
-        }
-
-        try {
-          const headers: HeadersInit = {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            Pragma: 'no-cache',
-            Expires: '0',
-          };
-
-          const token = e.data.token || localStorage.getItem('vega_editor_auth_token');
-          if (token) {
-            headers['X-Auth-Token'] = token;
-          }
-
-          const response = await fetch(`${BACKEND_URL}auth/github/check`, {
-            headers,
-            cache: 'no-store',
-          });
-          const data = await response.json();
-          const userData = {
-            isAuthenticated: data.isAuthenticated,
-            handle: data.handle,
-            userName: data.name,
-            userProfilePic: data.profilePicUrl,
-            authToken: data.authToken,
-          };
-
-          if (userData.isAuthenticated) {
-            saveAuthToLocalStorage({
-              isAuthenticated: userData.isAuthenticated,
-              handle: userData.handle,
-              name: userData.userName,
-              profilePicUrl: userData.userProfilePic,
-              authToken: userData.authToken,
-            });
-          }
-
-          setState((s) => ({
-            ...s,
-            isAuthenticated: userData.isAuthenticated,
-            handle: userData.handle,
-            name: userData.userName,
-            profilePicUrl: userData.userProfilePic,
-          }));
-        } catch (error) {
-          console.error('Authentication check failed:', error);
-          setState((s) => ({...s, isAuthenticated: false, name: '', profilePicUrl: ''}));
-        }
-      }
-    };
-
-    window.addEventListener('message', handleAuthMessage);
-    return () => {
-      window.removeEventListener('message', handleAuthMessage);
-    };
-  }, [setState]);
 
   // Sync Supabase Auth State
   useEffect(() => {
@@ -399,70 +197,6 @@ const Header: React.FC<Props> = ({showExample}) => {
     }
   }, [editorRef]);
 
-  const verifyTokenLocally = async (token: string): Promise<any> => {
-    try {
-      const decoded = atob(token);
-      const tokenData = JSON.parse(decoded);
-
-      if (tokenData && tokenData.data) {
-        const userData = JSON.parse(tokenData.data);
-        return {
-          isAuthenticated: true,
-          handle: userData.login,
-          name: userData.name,
-          profilePicUrl: userData.avatar_url,
-          authToken: token,
-        };
-      }
-      return null;
-    } catch (error) {
-      console.error('Error verifying token locally:', error);
-      return null;
-    }
-  };
-
-  const signIn = () => {
-    const popup = window.open(`${BACKEND_URL}auth/github`, 'github-login', 'width=600,height=600,resizable=yes');
-    if (popup) {
-      popup.focus();
-    } else {
-      window.location.href = `${BACKEND_URL}auth/github`;
-    }
-  };
-
-  const signOut = () => {
-    clearAuthFromLocalStorage();
-
-    const token = localStorage.getItem('vega_editor_auth_token');
-    if (token) {
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      iframe.src = `${BACKEND_URL}auth/github/logout?token=${encodeURIComponent(token)}`;
-      document.body.appendChild(iframe);
-
-      iframe.onload = iframe.onerror = () => {
-        setTimeout(() => {
-          document.body.removeChild(iframe);
-        }, 500);
-      };
-
-      localStorage.removeItem('vega_editor_auth_token');
-    }
-
-    const popup = window.open(
-      `${BACKEND_URL}auth/github/logout`,
-      'github-logout',
-      'width=600,height=600,resizable=yes',
-    );
-    if (popup) {
-      popup.focus();
-    } else {
-      window.location.href = `${BACKEND_URL}auth/github/logout`;
-    }
-
-    setState((s) => ({...s, isAuthenticated: false, name: '', profilePicUrl: ''}));
-  };
-
   const modeOptions =
     mode === Mode.Vega
       ? [{value: Mode.VegaLite, label: NAMES[Mode.VegaLite]}]
@@ -534,37 +268,6 @@ const Header: React.FC<Props> = ({showExample}) => {
     <div className="header-button" onClick={openCommandPalette}>
       <Terminal className="header-icon" />
       {'Commands'}
-    </div>
-  );
-
-  const authButton = (
-    <div className="auth-button-container">
-      {isAuthenticated ? (
-        <form>
-          <div className="profile-container">
-            <img className="profile-img" src={profilePicUrl} alt="Profile" />
-            <span className="arrow-down"></span>
-            {open && (
-              <div className="profile-menu">
-                <div className="welcome">Logged in as</div>
-                <div className="whoami">{name}</div>
-                <div>
-                  <input className="sign-out" type="submit" value="Sign out" onClick={signOut} />
-                </div>
-              </div>
-            )}
-          </div>
-        </form>
-      ) : (
-        <form>
-          <button className="sign-in" type="submit" onClick={signIn}>
-            <span className="sign-in-text" aria-label="Sign in with GitHub">
-              Sign in with
-            </span>
-            <GitHub />
-          </button>
-        </form>
-      )}
     </div>
   );
 
@@ -937,7 +640,6 @@ const Header: React.FC<Props> = ({showExample}) => {
           )}
         </PortalWithState>
         {settingsButton}
-        {authButton}
       </section>
     </div>
   );
