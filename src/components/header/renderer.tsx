@@ -219,7 +219,7 @@ const Header: React.FC<Props> = ({showExample}) => {
   const examplesButton = (
     <div className="header-button">
       <Grid className="header-icon" />
-      {'Examples'}
+      {'サンプル'}
     </div>
   );
 
@@ -239,14 +239,14 @@ const Header: React.FC<Props> = ({showExample}) => {
   const exportButton = (
     <div className="header-button">
       <ExternalLink className="header-icon" />
-      {'Export'}
+      {'エクスポート'}
     </div>
   );
 
   const shareButton = (
     <div className="header-button">
       <Share2 className="header-icon" />
-      {'Share'}
+      {'共有'}
     </div>
   );
 
@@ -260,7 +260,7 @@ const Header: React.FC<Props> = ({showExample}) => {
   const optionsButton = (
     <div className="header-button" onClick={openCommandPalette}>
       <Terminal className="header-icon" />
-      {'Commands'}
+      {'コマンド'}
     </div>
   );
 
@@ -459,7 +459,7 @@ const Header: React.FC<Props> = ({showExample}) => {
                   <span onClick={openPortal}>
                     <div className="header-button">
                       <UploadCloud className="header-icon" />
-                      {'Save'}
+                      {'保存'}
                     </div>
                   </span>
                   {portal(
@@ -486,7 +486,7 @@ const Header: React.FC<Props> = ({showExample}) => {
                   <span onClick={openPortal}>
                     <div className="header-button">
                       <DownloadCloud className="header-icon" />
-                      {'Load'}
+                      {'読込'}
                     </div>
                   </span>
                   {portal(
