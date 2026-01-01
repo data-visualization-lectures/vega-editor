@@ -75,9 +75,9 @@ const Header: React.FC<Props> = ({showExample}) => {
 
   // Sync Supabase Auth State
   useEffect(() => {
-    // interval to check until window.supabase is available
+    // interval to check until window.datavizSupabase is available
     const checkSupabase = setInterval(() => {
-      const supabase = (window as any).supabase;
+      const supabase = (window as any).datavizSupabase;
       if (supabase) {
         clearInterval(checkSupabase);
 
