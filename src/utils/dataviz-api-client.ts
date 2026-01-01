@@ -17,7 +17,7 @@ export interface ProjectDetail extends Project {
 
 export class DatavizApi {
   private static async getAccessToken(): Promise<string | null> {
-    const supabase = (window as any).supabase;
+    const supabase = (window as any).datavizSupabase;
     if (supabase) {
       const {data} = await supabase.auth.getSession();
       return data?.session?.access_token || null;
