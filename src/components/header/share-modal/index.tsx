@@ -270,83 +270,83 @@ const ShareModal: React.FC = () => {
 
   return (
     <div className="share-modal">
-      <h1>Share</h1>
-      <h2>Via URL</h2>
+      <h1>共有</h1>
+      <h2>URLで共有</h2>
       <p>
-        We pack the {NAMES[mode]} specification as an encoded string in the URL. We use a LZ-based compression
-        algorithm. When whitespaces are not preserved, the editor will automatically format the specification when it is
-        loaded.
+        {NAMES[mode]}
+        の仕様をURL内のエンコードされた文字列としてパックします。LZベースの圧縮アルゴリズムを使用しています。
+        空白が保持されていない場合、エディタはロード時に仕様を自動的にフォーマットします。
       </p>
       <div>
         <label className="user-pref">
           <input type="checkbox" checked={state.fullScreen} name="fullscreen" onChange={handleFullscreenCheck} />
-          Open visualization in fullscreen
+          ビジュアライゼーションを全画面で開く
         </label>
         <label className="user-pref">
           <input type="checkbox" checked={state.whitespace} name="whitespace" onChange={handleWhitespaceCheck} />
-          Preserve whitespace, comments, and trailing commas
+          空白、コメント、末尾のコンマを保持する
         </label>
       </div>
       <div className="sharing-buttons">
         <button onClick={previewURL} type="button">
           <span className="copy-icon">
             <Link />
-            Open Link
+            リンクを開く
           </span>
         </button>
         <button type="button" onClick={() => onCopy(state.generatedURL)}>
           <span className="copy-icon">
             <Copy />
-            Copy Link to Clipboard
+            クリップボードにリンクをコピー
           </span>
         </button>
         <button type="button" onClick={() => onCopy(`[Open the Chart in the Vega Editor](${state.generatedURL})`)}>
           <span className="copy-icon">
             <Copy />
-            Copy Markdown Link to Clipboard
+            クリップボードにMarkdownリンクをコピー
           </span>
         </button>
-        <div className={`copied${copied ? ' visible' : ''}`}>Copied!</div>
+        <div className={`copied${copied ? ' visible' : ''}`}>コピーしました!</div>
       </div>
-      Number of characters in the URL: {state.generatedURL.length}{' '}
+      URLの文字数: {state.generatedURL.length}{' '}
       <span className="url-warning">
         {state.generatedURL.length > 2083 && (
           <>
-            Warning:{' '}
+            警告:{' '}
             <a
               href="https://support.microsoft.com/en-us/help/208427/maximum-url-length-is-2-083-characters-in-internet-explorer"
               target="_blank"
               rel="noopener noreferrer"
             >
-              URLs over 2083 characters may not be supported in Internet Explorer.
+              2083文字を超えるURLはInternet Explorerでサポートされない可能性があります。
             </a>
           </>
         )}
       </span>
       <div className="spacer"></div>
       <h2>
-        Via{' '}
         <a href="https://gist.github.com/" target="_blank" rel="noopener noreferrer">
           GitHub Gist
         </a>
+        で共有
       </h2>
       <LoginConditional>
         <p>
-          Here, you can save your {NAMES[mode]} specification as a new Gist or update an existing Gist. You can view all
-          of your Gists on <a href={`https://gist.github.com/${handle}`}>GitHub</a>.
+          ここで、{NAMES[mode]}の仕様を新しいGistとして保存したり、既存のGistを更新したりできます。
+          あなたのすべてのGistは<a href={`https://gist.github.com/${handle}`}>GitHub</a>で確認できます。
         </p>
         <div className="share-gist-split">
           <div className="update-gist">
-            <h3>Update an existing Gist</h3>
-            <p>To update an existing Gist, select it in the list and then click the button below to confirm.</p>
+            <h3>既存のGistを更新</h3>
+            <p>既存のGistを更新するには、リストから選択し、下のボタンをクリックして確定してください。</p>
             <GistSelectWidget selectGist={selectGist} />
             {isAuthenticated && (
               <React.Fragment>
                 <div className="share-input-container">
                   <label>
-                    File name:
+                    ファイル名:
                     <input value={state.gistFileNameSelected} onChange={gistFileNameSelectedChange} type="text" />
-                    <small>Change the filename to create a new file in the selected Gist</small>
+                    <small>選択したGistに新しいファイルを作成するには、ファイル名を変更してください</small>
                   </label>
                 </div>
               </React.Fragment>
@@ -354,38 +354,43 @@ const ShareModal: React.FC = () => {
             <div className="sharing-buttons">
               <button onClick={updateGist} disabled={!state.gistFileNameSelected || state.updating}>
                 <Save />
-                {state.updating ? 'Updating...' : 'Update'}
+                {state.updating ? '更新中...' : '更新'}
               </button>
               {state.gistEditorURL && state.updating !== undefined && (
                 <button type="button" onClick={() => onCopy(state.gistEditorURL)}>
-                  <span className="copy-icon">Copy Link to Clipboard</span>
+                  <span className="copy-icon">クリップボードにリンクをコピー</span>
                 </button>
               )}
             </div>
-            {state.updateError && <div className="error-message share-error">Gist could not be updated.</div>}
+            {state.updateError && <div className="error-message share-error">Gistを更新できませんでした。</div>}
           </div>
           <div>
-            <h3>Create a new Gist</h3>
+            <h3>新しいGistを作成</h3>
             <p>
-              Save the current {NAMES[mode]} specification as a Gist. When you save it, you will get a link that you can
-              share. You can also load the specification via the Gist loading functionality in the editor.
+              現在の{NAMES[mode]}の仕様をGistとして保存します。保存すると、共有可能なリンクが取得できます。
+              また、エディタのGist読み込み機能を使用して、仕様を読み込むこともできます。
             </p>
             <div>
               <label className="user-pref">
                 <input type="checkbox" checked={state.whitespace} name="whitespace" onChange={handleWhitespaceCheck} />
-                Preserve whitespace, comments, and trailing commas
+                空白、コメント、末尾のコンマを保持する
               </label>
             </div>
             <div className="share-input-container">
               <label>
-                Title:
-                <input value={state.gistTitle} onChange={titleChange} type="text" placeholder="Enter title of gist" />
+                タイトル:
+                <input value={state.gistTitle} onChange={titleChange} type="text" placeholder="Gistのタイトルを入力" />
               </label>
             </div>
             <div className="share-input-container">
               <label>
-                File name:
-                <input value={state.gistFileName} onChange={fileNameChange} type="text" placeholder="Enter file name" />
+                ファイル名:
+                <input
+                  value={state.gistFileName}
+                  onChange={fileNameChange}
+                  type="text"
+                  placeholder="ファイル名を入力"
+                />
               </label>
             </div>
             <div className="share-input-container">
@@ -398,20 +403,20 @@ const ShareModal: React.FC = () => {
                   checked={state.gistPrivate}
                   onChange={updatePrivacy}
                 />
-                Create a Private Gist
+                プライベートGistを作成
               </label>
             </div>
             <div className="sharing-buttons">
               <button onClick={createGist} disabled={state.creating}>
                 <Save />
-                {state.creating ? 'Creating...' : 'Create'}
+                {state.creating ? '作成中...' : '作成'}
               </button>
               {state.gistEditorURL && state.creating !== undefined && (
                 <button type="button" onClick={() => onCopy(state.gistEditorURL)}>
-                  <span className="copy-icon">Copy Link to Clipboard</span>
+                  <span className="copy-icon">クリップボードにリンクをコピー</span>
                 </button>
               )}
-              {state.createError && <div className="error-message share-error">Gist could not be created</div>}
+              {state.createError && <div className="error-message share-error">Gistを作成できませんでした。</div>}
             </div>
           </div>
         </div>
