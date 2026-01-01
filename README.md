@@ -5,6 +5,9 @@ yarn install
 yarn build
 yarn start
 
+http://localhost:1234/?auth_debug
+
+
 ## デプロイ先
 
 GitHub Pages
