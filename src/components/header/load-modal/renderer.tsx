@@ -37,7 +37,7 @@ const LoadModal: React.FC<Props> = ({closePortal}) => {
         }
       });
     } catch (e: any) {
-      setError(e.message || 'Failed to load projects');
+      setError(e.message || 'プロジェクトの読み込みに失敗しました');
     } finally {
       setLoading(false);
     }
@@ -77,33 +77,33 @@ const LoadModal: React.FC<Props> = ({closePortal}) => {
 
       closePortal();
     } catch (e: any) {
-      setError(e.message || 'Failed to load project data');
+      setError(e.message || 'プロジェクトデータの読み込みに失敗しました');
       setLoading(false);
     }
   };
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    if (!window.confirm('Are you sure you want to delete this project?')) return;
+    if (!window.confirm('このプロジェクトを削除してもよろしいですか？')) return;
 
     try {
       await DatavizApi.deleteProject(id);
       setProjects((prev) => prev.filter((p) => p.id !== id));
     } catch (err: any) {
-      alert('Failed to delete: ' + err.message);
+      alert('削除に失敗しました: ' + err.message);
     }
   };
 
   return (
     <div className="load-modal" style={{padding: 20}}>
-      <h2>Open Project</h2>
+      <h2>プロジェクトを開く</h2>
       {error && (
         <div className="error" style={{color: 'red', marginBottom: 10}}>
           {error}
         </div>
       )}
 
-      {loading && projects.length === 0 && <div>Loading projects...</div>}
+      {loading && projects.length === 0 && <div>プロジェクトを読み込んでいます...</div>}
 
       <div
         className="project-list"
@@ -154,7 +154,7 @@ const LoadModal: React.FC<Props> = ({closePortal}) => {
                     color: '#ccc',
                   }}
                 >
-                  No Preview
+                  プレビューなし
                 </div>
               )}
             </div>
@@ -171,7 +171,7 @@ const LoadModal: React.FC<Props> = ({closePortal}) => {
               {p.name}
             </div>
             <div style={{fontSize: 11, color: '#888', marginTop: 4}}>
-              Updated: {new Date(p.updated_at).toLocaleDateString()}
+              更新日: {new Date(p.updated_at).toLocaleDateString()}
             </div>
             <button
               onClick={(e) => handleDelete(e, p.id)}
@@ -186,13 +186,13 @@ const LoadModal: React.FC<Props> = ({closePortal}) => {
                 cursor: 'pointer',
               }}
             >
-              Delete
+              削除
             </button>
           </div>
         ))}
       </div>
       {!loading && projects.length === 0 && !error && (
-        <div style={{color: '#666'}}>No projects found on the server.</div>
+        <div style={{color: '#666'}}>サーバー上にプロジェクトが見つかりませんでした。</div>
       )}
     </div>
   );

@@ -49,7 +49,7 @@ const SaveModal: React.FC<Props> = ({closePortal}) => {
       closePortal();
     } catch (e: any) {
       console.error(e);
-      setError(e.message || 'Error updating project');
+      setError(e.message || 'プロジェクトの更新中にエラーが発生しました');
     } finally {
       setLoading(false);
     }
@@ -58,7 +58,7 @@ const SaveModal: React.FC<Props> = ({closePortal}) => {
   // create new
   const handleCreate = useCallback(async () => {
     if (!projectName.trim()) {
-      setError('Project name is required');
+      setError('プロジェクト名は必須です');
       return;
     }
     setLoading(true);
@@ -84,7 +84,7 @@ const SaveModal: React.FC<Props> = ({closePortal}) => {
       closePortal();
     } catch (e: any) {
       console.error(e);
-      setError(e.message || 'Error creating project');
+      setError(e.message || 'プロジェクトの作成中にエラーが発生しました');
     } finally {
       setLoading(false);
     }
@@ -92,7 +92,7 @@ const SaveModal: React.FC<Props> = ({closePortal}) => {
 
   return (
     <div className="save-modal" style={{padding: 20}}>
-      <h2>Save Project</h2>
+      <h2>プロジェクトの保存</h2>
       {error && (
         <div className="error-message" style={{color: 'red', marginBottom: 10}}>
           {error}
@@ -100,12 +100,12 @@ const SaveModal: React.FC<Props> = ({closePortal}) => {
       )}
 
       <div className="input-group">
-        <label>Project Name</label>
+        <label>プロジェクト名</label>
         <input
           type="text"
           value={projectName}
           onChange={(e) => setProjectName(e.target.value)}
-          placeholder="My Visualization"
+          placeholder="ビジュアライゼーション名"
           style={{width: '100%', padding: '8px', margin: '8px 0', boxSizing: 'border-box'}}
         />
       </div>
@@ -114,15 +114,15 @@ const SaveModal: React.FC<Props> = ({closePortal}) => {
         {state.projectId ? (
           <>
             <button onClick={handleUpdate} disabled={loading} style={{padding: '8px 16px', cursor: 'pointer'}}>
-              {loading ? 'Saving...' : 'Save (Overwrite)'}
+              {loading ? '保存中...' : '保存 (上書き)'}
             </button>
             <button onClick={handleCreate} disabled={loading} style={{padding: '8px 16px', cursor: 'pointer'}}>
-              {loading ? 'Saving...' : 'Save As New'}
+              {loading ? '保存中...' : '新規保存'}
             </button>
           </>
         ) : (
           <button onClick={handleCreate} disabled={loading} style={{padding: '8px 16px', cursor: 'pointer'}}>
-            {loading ? 'Saving...' : 'Save'}
+            {loading ? '保存中...' : '保存'}
           </button>
         )}
       </div>
