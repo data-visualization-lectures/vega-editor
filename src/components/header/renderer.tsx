@@ -223,13 +223,6 @@ const Header: React.FC<Props> = ({showExample}) => {
     </div>
   );
 
-  const gistButton = (
-    <div className="header-button">
-      <GitHub className="header-icon" />
-      {'Gist'}
-    </div>
-  );
-
   const settingsButton = (
     <div
       className="header-button settings-button"
@@ -446,6 +439,8 @@ const Header: React.FC<Props> = ({showExample}) => {
     };
   }, []);
 
+  const isAuthDebug = new URLSearchParams(window.location.search).has('auth_debug');
+
   return (
     <div className="app-header" role="banner">
       <section className="left-section">
@@ -456,7 +451,7 @@ const Header: React.FC<Props> = ({showExample}) => {
         </span>
         {optionsButton}
 
-        {isAuthenticated && (
+        {(isAuthenticated || isAuthDebug) && (
           <>
             <PortalWithState closeOnEsc>
               {({openPortal, closePortal, isOpen, portal}) => (
@@ -547,26 +542,6 @@ const Header: React.FC<Props> = ({showExample}) => {
                       </button>
                     </div>
                     <div className="modal-body">{shareContent}</div>
-                  </div>
-                </div>,
-              )}
-            </>
-          )}
-        </PortalWithState>
-
-        <PortalWithState closeOnEsc>
-          {({openPortal, closePortal, isOpen, portal}) => (
-            <>
-              <span onClick={openPortal}>{gistButton}</span>
-              {portal(
-                <div className="modal-background" onClick={closePortal}>
-                  <div className="modal" onClick={(e) => e.stopPropagation()}>
-                    <div>
-                      <button className="close-button" onClick={closePortal}>
-                        <X />
-                      </button>
-                    </div>
-                    <div className="modal-body">{renderGist(closePortal)}</div>
                   </div>
                 </div>,
               )}

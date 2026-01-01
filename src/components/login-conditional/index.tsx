@@ -25,20 +25,7 @@ const LoginConditional: React.FC<Props> = ({children}) => {
     return <>{children}</>;
   }
 
-  return (
-    <div className="login-prompt">
-      <p>
-        <a
-          href={`${BACKEND_URL}auth/github`}
-          onClick={handleLogin}
-          style={{cursor: 'pointer', textDecoration: 'underline'}}
-        >
-          Login with GitHub
-        </a>{' '}
-        to use the Gist feature.
-      </p>
-    </div>
-  );
+  return null;
 };
 
 export default LoginConditional;

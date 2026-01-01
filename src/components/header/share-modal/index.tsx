@@ -324,12 +324,6 @@ const ShareModal: React.FC = () => {
         )}
       </span>
       <div className="spacer"></div>
-      <h2>
-        <a href="https://gist.github.com/" target="_blank" rel="noopener noreferrer">
-          GitHub Gist
-        </a>
-        で共有
-      </h2>
       <LoginConditional>
         <p>
           ここで、{NAMES[mode]}の仕様を新しいGistとして保存したり、既存のGistを更新したりできます。
