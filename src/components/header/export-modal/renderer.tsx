@@ -126,15 +126,15 @@ export default function ExportModal() {
 
   return (
     <>
-      <h1>Export</h1>
+      <h1>エクスポート</h1>
       <div className="exports">
         <div className="export-container">
           <div className="header-text">
             <Image />
             <span>PNG</span>
           </div>
-          <p>PNG is a bitmap image format which is made up of a fixed number of pixels.</p>
-          <button onClick={() => downloadViz('png')}>Download </button>
+          <p>PNGは、固定数のピクセルで構成されるビットマップ画像形式です。</p>
+          <button onClick={() => downloadViz('png')}>ダウンロード</button>
         </div>
 
         <div className="export-container">
@@ -142,7 +142,7 @@ export default function ExportModal() {
             <Code />
             <span>JSON</span>
           </div>
-          <p>JSON is a lightweight data-interchange format.</p>
+          <p>JSONは軽量なデータ交換フォーマットです。</p>
           {mode === Mode.VegaLite && (
             <div className="input-container">
               <label>
@@ -153,7 +153,7 @@ export default function ExportModal() {
                   checked={downloadVegaJSON}
                   onChange={() => setDownloadVegaJSON(true)}
                 />{' '}
-                Compiled Vega
+                Compiled Vega (コンパイル済みVega)
               </label>
               <label htmlFor="json-type[vega-lite]" className="vl-label">
                 <input
@@ -169,7 +169,7 @@ export default function ExportModal() {
           )}
           <div className="input-container">
             {downloadVegaJSON ? (
-              <p>The compiled Vega includes the config and is formatted.</p>
+              <p>コンパイル済みVegaには設定(config)が含まれ、フォーマット済みです。</p>
             ) : (
               <div>
                 <label>
@@ -179,13 +179,13 @@ export default function ExportModal() {
                     checked={includeConfig}
                     onChange={() => setIncludeConfig(!includeConfig)}
                   />
-                  Include config
+                  configを含める
                 </label>
-                {includeConfig && <p>The downloaded spec will be formatted. </p>}
+                {includeConfig && <p>ダウンロードされる仕様(spec)はフォーマット済みです。</p>}
               </div>
             )}
           </div>
-          <button onClick={downloadJSON}>Download</button>
+          <button onClick={downloadJSON}>ダウンロード</button>
         </div>
         <div className="export-container">
           <div className="header-text">
@@ -193,12 +193,11 @@ export default function ExportModal() {
             <span>SVG</span>
           </div>
           <p>
-            SVG is a vector image format which uses geometric forms to represent different parts as discrete objects and
-            are infinitely scalable.
+            SVGはベクター画像形式で、幾何学的形状を使用して異なる部分を個別のオブジェクトとして表現し、無限にスケーラブルです。
           </p>
-          <button onClick={() => openViz('svg')}>Open</button>
+          <button onClick={() => openViz('svg')}>開く</button>
           <button onClick={() => downloadViz('svg')} className="export-button download">
-            Download
+            ダウンロード
           </button>
         </div>
         <div className="export-container">
@@ -207,26 +206,20 @@ export default function ExportModal() {
             <span>PDF</span>
           </div>
           <p>
-            <br /> PDF is a vector format usually used for documents. This might take a few seconds. Please be patient.
-            Use absolute URLs to data or <a href="https://github.com/vega/vega-datasets">Vega datasets</a> at{' '}
-            <code>/data/...</code>. Your chart is sent to{' '}
-            <a href="https://github.com/vega/vl-convert" target="_blank" rel="noopener noreferrer">
-              vl-convert.vercel.app
-            </a>{' '}
-            to be converted.
+            PDFは通常ドキュメントに使用されるベクター形式です。これには数秒かかる場合があります。しばらくお待ちください。
           </p>
           <button onClick={() => downloadPDF()} disabled={loadingPDF}>
-            {loadingPDF ? 'Loading...' : 'Download'}
+            {loadingPDF ? '読み込み中...' : 'ダウンロード'}
           </button>
-          {errorLoadingPdf && <p className="error-message">Error loading PDF: {errorLoadingPdf}</p>}
+          {errorLoadingPdf && <p className="error-message">PDFの読み込みエラー: {errorLoadingPdf}</p>}
         </div>
         <div className="export-container">
           <div className="header-text">
             <BookOpen />
             <span>HTML</span>
           </div>
-          <p>HTML is a markup language for creating web pages.</p>
-          <button onClick={() => downloadHTML()}>Download</button>
+          <p>HTMLはウェブページを作成するためのマークアップ言語です。</p>
+          <button onClick={() => downloadHTML()}>ダウンロード</button>
         </div>
       </div>
     </>
