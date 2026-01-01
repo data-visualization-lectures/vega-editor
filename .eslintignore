@@ -2,3 +2,4 @@
 prettier.config.cjs
 vite.config.ts
 dist
+public/vendor

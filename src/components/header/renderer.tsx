@@ -3,7 +3,6 @@ import * as React from 'react';
 import {useEffect, useRef, useState, useCallback} from 'react';
 import {
   ExternalLink,
-  GitHub,
   Grid,
   HelpCircle,
   Play,
@@ -22,7 +21,6 @@ import {NAMES} from '../../constants/consts.js';
 import {VEGA_LITE_SPECS, VEGA_SPECS} from '../../constants/specs.js';
 
 import ExportModal from './export-modal/renderer.js';
-import GistModal from './gist-modal/renderer.js';
 import HelpModal from './help-modal/index.js';
 import SaveModal from './save-modal/renderer.js';
 import LoadModal from './load-modal/renderer.js';
@@ -38,17 +36,12 @@ const Header: React.FC<Props> = ({showExample}) => {
   const {state, setState} = useAppContext();
   const navigate = useNavigate();
 
-  const {editorRef, isAuthenticated, lastPosition, manualParse, mode, name, profilePicUrl, settings, vegaSpec} = state;
+  const {editorRef, isAuthenticated, lastPosition, manualParse, mode, settings, vegaSpec} = state;
 
   const examplePortal = useRef<HTMLDivElement>(null);
   const splitButtonRef = useRef<HTMLSpanElement>(null);
-  const [open, setOpen] = useState(false);
   const [scrollPosition, setScrollPos] = useState(0);
   const [showVega, setShowVega] = useState(mode === Mode.Vega);
-  const [helpModalOpen, setHelpModalOpen] = useState(false);
-  const [exportModalOpen, setExportModalOpen] = useState(false);
-  const [shareModalOpen, setShareModalOpen] = useState(false);
-  const [gistModalOpen, setGistModalOpen] = useState(false);
   const [examplesModalOpen, setExamplesModalOpen] = useState(showExample);
 
   const scrollHandlers = useRef(new WeakMap());
@@ -56,22 +49,6 @@ const Header: React.FC<Props> = ({showExample}) => {
   useEffect(() => {
     setShowVega(mode === Mode.Vega);
   }, [mode]);
-
-  useEffect(() => {
-    const handleClick = (e) => {
-      if (e.target.closest('.profile-container')) {
-        setOpen((prev) => !prev);
-      } else {
-        setOpen(false);
-      }
-    };
-
-    window.addEventListener('click', handleClick);
-
-    return () => {
-      window.removeEventListener('click', handleClick);
-    };
-  }, []);
 
   // Sync Supabase Auth State
   useEffect(() => {
@@ -112,23 +89,6 @@ const Header: React.FC<Props> = ({showExample}) => {
 
     return () => clearInterval(checkSupabase);
   }, [setState]);
-
-  useEffect(() => {
-    const keyDownHandler = (e) => {
-      if (
-        (e.keyCode === KEYCODES.SINGLE_QUOTE && e.metaKey && !e.shiftKey) ||
-        (e.keyCode === KEYCODES.SLASH && e.ctrlKey && e.shiftKey)
-      ) {
-        setHelpModalOpen((prev) => !prev);
-      }
-    };
-
-    window.addEventListener('keydown', keyDownHandler);
-
-    return () => {
-      window.removeEventListener('keydown', keyDownHandler);
-    };
-  }, []);
 
   const onSelectVega = useCallback(
     (specName) => {
@@ -366,60 +326,12 @@ const Header: React.FC<Props> = ({showExample}) => {
     </div>
   );
 
-  const renderGist = (closePortal) => <GistModal closePortal={closePortal} />;
   const exportContent = <ExportModal />;
   const shareContent = <ShareModal />;
-
-  const handleExamplesModalOpen = useCallback(() => {
-    setExamplesModalOpen(true);
-
-    setTimeout(() => {
-      if (examplePortal.current) {
-        const node = examplePortal.current;
-        node.scrollTop = lastPosition;
-
-        const handleScroll = () => setScrollPos(node.scrollTop);
-
-        const existingHandler = scrollHandlers.current.get(node);
-        if (existingHandler) {
-          node.removeEventListener('scroll', existingHandler);
-        }
-
-        node.addEventListener('scroll', handleScroll);
-        scrollHandlers.current.set(node, handleScroll);
-      }
-    }, 0);
-  }, [lastPosition]);
-
-  const handleExamplesModalClose = useCallback(() => {
-    setExamplesModalOpen(false);
-
-    if (examplePortal.current) {
-      const handler = scrollHandlers.current.get(examplePortal.current);
-      if (handler) {
-        examplePortal.current.removeEventListener('scroll', handler);
-        scrollHandlers.current.delete(examplePortal.current);
-      }
-    }
-
-    setState((s) => ({...s, lastPosition: scrollPosition}));
-  }, [setState, scrollPosition]);
 
   const handleVegaToggle = useCallback((isVega) => {
     setShowVega(isVega);
   }, []);
-
-  const handleExportModalOpen = () => setExportModalOpen(true);
-  const handleExportModalClose = () => setExportModalOpen(false);
-
-  const handleShareModalOpen = () => setShareModalOpen(true);
-  const handleShareModalClose = () => setShareModalOpen(false);
-
-  const handleGistModalOpen = () => setGistModalOpen(true);
-  const handleGistModalClose = () => setGistModalOpen(false);
-
-  const handleHelpModalOpen = () => setHelpModalOpen(true);
-  const handleHelpModalClose = () => setHelpModalOpen(false);
 
   useEffect(() => {
     if (showExample !== examplesModalOpen) {
