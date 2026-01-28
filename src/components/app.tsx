@@ -517,6 +517,27 @@ const App: React.FC<Props> = (props) => {
                 align: 'right',
               },
               {
+                id: 'share-btn',
+                label: '共有',
+                action: () => {
+                  console.log('[App] Share button clicked. Simulating click on existing button...');
+                  const headerButtons = Array.from(document.querySelectorAll('.header-button'));
+                  const shareButton = headerButtons.find((btn) => btn.textContent?.includes('共有'));
+
+                  if (shareButton) {
+                    const parent = shareButton.parentElement;
+                    if (parent) {
+                      (parent as HTMLElement).click();
+                    } else {
+                      (shareButton as HTMLElement).click();
+                    }
+                  } else {
+                    console.warn('[App] Existing "共有" button not found.');
+                  }
+                },
+                align: 'right',
+              },
+              {
                 id: 'sample-project-btn',
                 label: 'サンプルプロジェクトの読込',
                 action: () => {

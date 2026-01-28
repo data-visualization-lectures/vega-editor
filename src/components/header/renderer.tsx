@@ -354,7 +354,7 @@ const Header: React.FC<Props> = ({showExample}) => {
   const isAuthDebug = new URLSearchParams(window.location.search).has('auth_debug');
 
   return (
-    <div className="app-header" role="banner">
+    <div className="app-header" role="banner" style={{display: 'none'}}>
       <section className="left-section">
         {modeSwitcher}
         <span ref={splitButtonRef} className={splitClass}>
