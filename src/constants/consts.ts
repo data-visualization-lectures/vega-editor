@@ -38,7 +38,11 @@ export const VEGA_START_SPEC = `{
 }`;
 
 export const VEGA_LITE_START_SPEC = `{
-  "$schema": "${SCHEMA['vega-lite']}"
+  "$schema": "${SCHEMA['vega-lite']}",
+  "mark": "point",
+  "data": {
+    "values": []
+  }
 }`;
 
 export type View = vega.View;

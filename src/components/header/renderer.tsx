@@ -17,7 +17,7 @@ import {useNavigate} from 'react-router';
 import Select from 'react-select';
 import {useAppContext} from '../../context/app-context.js';
 import {KEYCODES, Mode} from '../../constants/index.js';
-import {NAMES} from '../../constants/consts.js';
+import {NAMES, VEGA_LITE_START_SPEC} from '../../constants/consts.js';
 import {VEGA_LITE_SPECS, VEGA_SPECS} from '../../constants/specs.js';
 
 import ExportModal from './export-modal/renderer.js';
@@ -130,9 +130,7 @@ const Header: React.FC<Props> = ({showExample}) => {
         }));
         onSelectNewVega();
       } else {
-        const newEditorString = `{
-  "$schema": "https://vega.github.io/schema/vega-lite/v5.json"
-}`;
+        const newEditorString = VEGA_LITE_START_SPEC;
         setState((s) => ({
           ...s,
           editorString: newEditorString,
