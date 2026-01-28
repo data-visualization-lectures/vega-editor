@@ -3,14 +3,14 @@ import * as React from 'react';
 import * as vega from 'vega';
 import * as vegaLite from 'vega-lite';
 import {useCallback, useEffect} from 'react';
-import {useParams} from 'react-router';
+import {useParams, useNavigate} from 'react-router';
 import {MessageData} from 'vega-embed';
 import {mergeConfig} from 'vega';
 import {Config} from 'vega-lite';
 import {satisfies} from 'semver';
 import schemaParser from 'vega-schema-url-parser';
 import {LAYOUT, Mode} from '../constants';
-import {NAME_TO_MODE, VEGA_LITE_START_SPEC, VEGA_START_SPEC} from '../constants/consts';
+import {NAME_TO_MODE, VEGA_LITE_START_SPEC, VEGA_START_SPEC, NAMES} from '../constants/consts';
 import {useAppContext} from '../context/app-context';
 import {LocalLogger} from '../utils/logger';
 import {parseJSONCOrThrow, parseJSONC} from '../utils/jsonc-parser';
@@ -34,6 +34,7 @@ const App: React.FC<Props> = (props) => {
   const {editorRef, settings} = state;
 
   const params = useParams();
+  const navigate = useNavigate();
 
   const setExample = useCallback(
     async (parameter: {example_name: string; mode: string}) => {
@@ -413,8 +414,173 @@ const App: React.FC<Props> = (props) => {
     }
   }, [state.lastPosition]);
 
+  useEffect(() => {
+    const configureHeader = () => {
+      const header = document.querySelector('dataviz-tool-header');
+      if (header) {
+        const logoUrl = window.location.origin + '/images/logo.png';
+        if (typeof (header as any).setConfig === 'function') {
+          (header as any).setConfig({
+            logo: {
+              type: 'image',
+              src: logoUrl,
+              href: '/',
+            },
+            buttons: [
+              {
+                id: 'load-project-btn',
+                label: 'プロジェクトの読込',
+                action: () => {
+                  console.log('[App] Load Project button clicked. Simulating click on existing button...');
+                  // Find the existing "読込" button. It's usually inside a span that handles the click.
+                  // We look for a header-button containing the text "読込"
+                  const headerButtons = Array.from(document.querySelectorAll('.header-button'));
+                  const loadButton = headerButtons.find((btn) => btn.textContent?.includes('読込'));
+
+                  if (loadButton) {
+                    // The click listener is often on the parent span for PortalWithState
+                    const parent = loadButton.parentElement;
+                    if (parent) {
+                      (parent as HTMLElement).click();
+                    } else {
+                      (loadButton as HTMLElement).click();
+                    }
+                  } else {
+                    console.warn('[App] Existing "読込" button not found.');
+                  }
+                },
+                align: 'right',
+              },
+              {
+                id: 'save-project-btn',
+                label: 'プロジェクトの保存',
+                action: () => {
+                  console.log('[App] Save Project button clicked. Simulating click on existing button...');
+                  const headerButtons = Array.from(document.querySelectorAll('.header-button'));
+                  const saveButton = headerButtons.find((btn) => btn.textContent?.includes('保存'));
+
+                  if (saveButton) {
+                    const parent = saveButton.parentElement;
+                    if (parent) {
+                      (parent as HTMLElement).click();
+                    } else {
+                      (saveButton as HTMLElement).click();
+                    }
+                  } else {
+                    console.warn('[App] Existing "保存" button not found.');
+                  }
+                },
+                align: 'right',
+              },
+              {
+                id: 'mode-switcher',
+                type: 'dropdown',
+                label: NAMES[state.mode] || 'Mode',
+                items: [
+                  {
+                    label: 'Vega',
+                    action: () => {
+                      console.log('[App] Switching to Vega...');
+                      navigate('/custom/vega');
+                    },
+                  },
+                  {
+                    label: 'Vega-Lite',
+                    action: () => {
+                      console.log('[App] Switching to Vega-Lite...');
+                      navigate('/custom/vega-lite');
+                    },
+                  },
+                ],
+
+                align: 'left', // Based on screenshot implication, usually switchers are left/center
+              },
+              {
+                id: 'export-btn',
+                label: 'エクスポート',
+                action: () => {
+                  console.log('[App] Export button clicked. Simulating click on existing button...');
+                  const headerButtons = Array.from(document.querySelectorAll('.header-button'));
+                  const exportButton = headerButtons.find((btn) => btn.textContent?.includes('エクスポート'));
+
+                  if (exportButton) {
+                    const parent = exportButton.parentElement;
+                    if (parent) {
+                      (parent as HTMLElement).click();
+                    } else {
+                      (exportButton as HTMLElement).click();
+                    }
+                  } else {
+                    console.warn('[App] Existing "エクスポート" button not found.');
+                  }
+                },
+                align: 'right',
+              },
+              {
+                id: 'sample-project-btn',
+                label: 'サンプルプロジェクトの読込',
+                action: () => {
+                  console.log('[App] Sample Project button clicked. Simulating click on existing button...');
+                  const headerButtons = Array.from(document.querySelectorAll('.header-button'));
+                  const sampleButton = headerButtons.find((btn) => btn.textContent?.includes('サンプル'));
+
+                  if (sampleButton) {
+                    const parent = sampleButton.parentElement;
+                    if (parent) {
+                      (parent as HTMLElement).click();
+                    } else {
+                      (sampleButton as HTMLElement).click();
+                    }
+                  } else {
+                    console.warn('[App] Existing "サンプル" button not found.');
+                  }
+                },
+                align: 'left',
+              },
+              {
+                id: 'help-btn',
+                label: 'ヘルプ',
+                action: () => {
+                  console.log('[App] Help button clicked. Simulating click on existing button...');
+                  const helpButton = document.querySelector('.header-button.help');
+
+                  if (helpButton) {
+                    (helpButton as HTMLElement).click();
+                  } else {
+                    console.warn('[App] Existing "Help" button not found.');
+                  }
+                },
+                align: 'right',
+              },
+              {
+                id: 'settings-btn',
+                label: '設定',
+                action: () => {
+                  console.log('[App] Settings button clicked. Simulating click on existing button...');
+                  const settingsButton = document.querySelector('.header-button.settings-button');
+
+                  if (settingsButton) {
+                    (settingsButton as HTMLElement).click();
+                  } else {
+                    console.warn('[App] Existing "Settings" button not found.');
+                  }
+                },
+                align: 'right',
+              },
+            ],
+          });
+        }
+      }
+    };
+    if (customElements.get('dataviz-tool-header')) {
+      configureHeader();
+    } else {
+      customElements.whenDefined('dataviz-tool-header').then(configureHeader);
+    }
+  }, [state.mode]);
+
   return (
-    <div className="app-container">
+    <div className="app-container" style={{marginTop: '96px', height: 'calc(100vh - 96px)'}}>
       <Header showExample={props.showExample} />
       <div
         style={{
