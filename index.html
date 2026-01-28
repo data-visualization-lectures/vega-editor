@@ -17,11 +17,22 @@
   <title>Vega Editor</title>
   <script src="https://auth.dataviz.jp/lib/supabase.js"></script>
   <script src="https://auth.dataviz.jp/lib/dataviz-auth-client.js"></script>
-  <script type="module" crossorigin src="/assets/index-CCUx8ogP.js"></script>
+  <script src="https://auth.dataviz.jp/lib/dataviz-tool-header.js"></script>
+  <script type="module" crossorigin src="/assets/index-3J61lHaE.js"></script>
   <link rel="stylesheet" crossorigin href="/assets/index-D_SdtjVP.css">
 </head>
 
 <body>
+  <style>
+    dataviz-tool-header {
+      position: fixed;
+      top: 48px;
+      left: 0;
+      width: 100%;
+      z-index: 2147483647;
+    }
+  </style>
+  <dataviz-tool-header custom-title="Vega Editor"></dataviz-tool-header>
   <div id="root"></div>
   <noscript>You need to enable JavaScript to run this app.</noscript>
 </body>
